@@ -54,8 +54,8 @@ function pushChewEvent(ts) {
 }
 
 // Wafer-to-mouth gating (both tips in 10–40 px band for hold time)
-const CONTACT_REQUIRED_MS = 500; // hold time (ms)
-const TOUCH_MIN_PX = 10;          // inner radius of acceptable band
+const CONTACT_REQUIRED_MS = 100; // hold time (ms)
+const TOUCH_MIN_PX = 1;          // inner radius of acceptable band
 const TOUCH_MAX_PX = 40;          // outer radius of acceptable band
 let waferTaken = false;           // becomes true after hold completes
 let contactStartTs = null;        // when both tips first within band

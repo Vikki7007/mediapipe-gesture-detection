@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wafer Detection System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+        .video-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+        #videoElement {
+            width: 640px;
+            height: 480px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        #canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+        }
+        .status {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .status.detected {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .status.not-detected {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .status.pass {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+            font-size: 24px;
+        }
+        .output {
+            font-family: monospace;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+            background: #343a40;
+            color: #ffffff;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .ref-images {
+            margin: 20px 0;
+        }
+        .ref-image {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border: 2px solid #ddd;
+            margin: 5px;
+            border-radius: 3px;
+        }
+        .upload-section {
+            margin: 10px 0;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .settings {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input, select {
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Wafer Detection System</h1>
+        
+        <div class="controls">
+            <h3>Settings</h3>
+            <div class="settings">
+                <div class="setting-group">
+                    <label for="confRatio">Confidence Ratio:</label>
+                    <input type="number" id="confRatio" min="0.1" max="1.0" step="0.01" value="0.70">
+                </div>
+                <div class="setting-group">
+                    <label for="minGoodMatches">Min Good Matches:</label>
+                    <input type="number" id="minGoodMatches" min="1" max="50" value="6">
+                </div>
+                <div class="setting-group">
+                    <label for="minInliers">Min Inliers:</label>
+                    <input type="number" id="minInliers" min="1" max="50" value="6">
+                </div>
+                <div class="setting-group">
+                    <label for="smoothFrames">Smooth Frames:</label>
+                    <input type="number" id="smoothFrames" min="1" max="20" value="5">
+                </div>
+            </div>
+            
+            <div class="upload-section">
+                <button onclick="loadReferenceImages()" id="loadRefsBtn">Load Reference Images</button>
+                <button onclick="loadCustomImages()" id="customImagesBtn">Upload Custom Images</button>
+                <input type="file" id="refImages" multiple accept="image/*" style="display: none;">
+            </div>
+        </div>
+
+        <div class="ref-images" id="refImagesContainer">
+            <h4>Reference Images:</h4>
+            <p id="refStatus">Ready to load reference images from directory...</p>
+        </div>
+
+        <div>
+            <button id="startBtn" onclick="startDetection()">Start Camera</button>
+            <button id="stopBtn" onclick="stopDetection()" disabled>Stop Camera</button>
+        </div>
+
+        <div class="video-container">
+            <video id="videoElement" autoplay muted></video>
+            <canvas id="canvas" width="640" height="480"></canvas>
+        </div>
+
+        <div class="output" id="output">0</div>
+        
+        <div class="status" id="status">Camera not started</div>
+    </div>
+
+    <!-- Load OpenCV.js -->
+    <script src="https://docs.opencv.org/4.8.0/opencv.js"></script>
+    <!-- Load our wafer detection script -->
+    <script src="wafer-detection.js"></script>
+</body>
+</html>
