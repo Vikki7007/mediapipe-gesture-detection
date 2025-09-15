@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MediaPipe: Lips + Hands</title>
+  <style>
+    body { margin: 0; background:#0b1020; color:#e8f0ff; font-family: system-ui, Arial; }
+    header { padding: 12px 16px; font-weight: 600; }
+    .stage {
+      position: relative; width: 80vw; max-width: 900px; margin: 12px auto 24px;
+      aspect-ratio: 4/3; background: #111; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    video, canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+    /* Mirror for selfie view */
+    video, canvas { transform: scaleX(-1); }
+    .hint { text-align:center; opacity:.7; margin-bottom: 24px; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <header>MediaPipe — Inner Lip Landmarks + Hand Tracking</header>
+
+  <div class="stage">
+    <video id="video" playsinline></video>
+    <canvas id="canvas"></canvas>
+  </div>
+
+  <p class="hint">
+    If the camera doesn’t start, use HTTPS (or localhost) and allow camera permissions.
+  </p>
+
+  <!-- MediaPipe Solutions (Face Mesh + Hands + utils) -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+
+  <!-- Your app -->
+  <script src="script.js"></script>
+</body>
+</html>
