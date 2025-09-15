@@ -10,16 +10,16 @@ class WaferDetector {
     // Template-gating (instant path)
     this.INSTANT_TEMPLATE = true; // turn ON for instant gating
     this.TMPL_SIZE = 96;          // template size (square, px)
-    this.TMPL_THR  = 0.18;        // TM_CCOEFF_NORMED threshold for instant PASS (0..1)
-    this.EDGE_TMPL = true;        // use Canny edges for matching (more robust to lighting)
+    this.TMPL_THR  = 0.55;        // TM_CCOEFF_NORMED threshold for instant PASS (0..1)
+    this.EDGE_TMPL = false;        // use Canny edges for matching (more robust to lighting)
 
     // ORB fallback (runs only if instant gate didn't pass)
     this.CONF_RATIO =0.90;    // Lowe ratio
     this.MIN_GOOD_MATCHES = 3;
-    this.MIN_INLIERS = 2;
+    this.MIN_INLIERS = 6;
 
     // Smoothing/UX
-    this.SMOOTH_N = 1;            // instant = 1; increase to 2-3 if you want stability
+    this.SMOOTH_N = 5;            // instant = 1; increase to 2-3 if you want stability
     this.SHOW_DEBUG = true;
     this.EXIT_ON_PASS = false;
     this.PASS_HOLD_MS = 1000;
@@ -30,10 +30,10 @@ class WaferDetector {
 
     // Default reference files (place next to HTML)
     this.REF_IMAGE_FILES = [
-      "wafer_ref_1.png",
-      "wafer_ref_2.png",
       "wafer_ref_4.png",
-      "wafer_ref_5.png"
+      "wafer_ref_5.png",
+      "wafer_ref_1.jpg",
+      "wafer_ref_2.jpg"
      ];
 
     // -------- State --------
@@ -85,7 +85,7 @@ class WaferDetector {
     // Detector + matcher (lightweight ORB)
     if (typeof cv.ORB.create === "function") {
       // nfeatures, scaleFactor, nlevels, edgeThreshold, firstLevel, WTA_K, scoreType, patchSize, fastThreshold
-      this.detector = cv.ORB.create(800, 1.2, 6, 16, 0, 2, 0, 16, 12);
+      this.detector = cv.ORB.create(1000, 1.2, 6, 16, 0, 2, 0, 16, 12);
     } else {
       this.detector = new cv.ORB(800);
     }
@@ -405,6 +405,7 @@ class WaferDetector {
         let waferPresent = false;
         let bestInliers = 0;
         let bestQuad = null;
+        let templateHit = false;
 
         // -------- INSTANT TEMPLATE GATE --------
         if (this.INSTANT_TEMPLATE) {
@@ -414,9 +415,8 @@ class WaferDetector {
             cv.matchTemplate(srcForMatch, ref.tmpl, ref.res, cv.TM_CCOEFF_NORMED);
             const mm = cv.minMaxLoc(ref.res);
             console.log(`[TEMPLATE] ${ref.name} maxVal=${mm.maxVal.toFixed(3)} thr=${this.TMPL_THR}`);
-            if (mm.maxVal >= this.TMPL_THR) {
-            waferPresent = true; // instant PASS
-            break;
+            if (mm.maxVal >= this.TMPL_THR) {  
+            templateHit = true; // instant PASS
     }
 
           }
@@ -483,7 +483,7 @@ class WaferDetector {
             }
           }
 
-          waferPresent = bestInliers >= this.MIN_INLIERS;
+          waferPresent = (templateHit && bestInliers >= this.MIN_INLIERS);
         }
 
         // -------- Decision + smoothing --------
